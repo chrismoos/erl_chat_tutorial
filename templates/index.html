@@ -1,0 +1,19 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="/static/site.css"/>
+	<title>Chat Server Login</title>
+</head>
+<body>
+	<h1>Erlang Chat Demo</h1>
+	<p>This server is a demo of using Erlang to provide live chat in your web browser using Comet and AJAX.</p>
+	
+	<h3>Login</h3>
+	<p>Please enter a nickname you would like to use.</p>
+	{% if error %}
+	<p class="error">**  {{error}}</p>
+	{% endif %}
+	<form action="/login/" method="post">
+		<input type="text" name="nick" /> <input type="submit" value="Enter chat"/>
+	</form>
+</body>
+</html>
