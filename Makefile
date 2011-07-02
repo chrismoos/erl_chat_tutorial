@@ -2,6 +2,7 @@ ERL=erl
 EBIN=./ebin
 
 all: 
+	mkdir -p ${EBIN}
 	cp lib/*/*.beam ebin
 	cd src && make
 

@@ -1,0 +1,7 @@
+<h3>Bans</h3>
+<table>
+<tr><th>Host</th><th>Nickname</th><th>Reason</th><th>Time Reamining</th></tr>
+{% for ban in bans %}
+<tr><td>{{ban.host|escape}}</td><td>{{ban.nick|escape}}</td><td>{{ban.reason|escape}}</td><td>{{ban.time|escape}}</td></tr>
+{% endfor %}
+</table>

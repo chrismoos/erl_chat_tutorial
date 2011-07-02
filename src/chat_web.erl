@@ -6,7 +6,7 @@
 
 -export([wait_msg_id/1,wait/1,timeout_wait/1]).
 
--define(COMET_TIMEOUT, 30000).
+-define(COMET_TIMEOUT, 90000).
 
 start_link() -> mochiweb_http:start([{port, 8000}, {loop, {?MODULE, loop}}]).
 
@@ -22,6 +22,8 @@ json_respond(Msg, Req) -> Req:ok({"text/json", [], Msg}).
 json_client_ok(Msg) -> lists:flatten(rfc4627:encode({obj, [{"status", <<"ok">>}, {response, Msg}]})).
 json_client_error(Msg) -> lists:flatten(rfc4627:encode({obj, [{"status", <<"error">>}, {response, Msg}]})).
 
+format_data(admin_logged_out, Nick) -> Nick;
+format_data(admin_logged_in, Nick) -> Nick;
 format_data(user_left_room, {Nick, Reason}) -> {obj, [{"nick", Nick}, {"reason", Reason}]};
 format_data(user_joined_room, Nick) -> Nick;
 format_data(system_msg, Msg) -> Msg;
@@ -84,7 +86,11 @@ handle_request(Req, "/login/") ->
 	    {ok, SessID} -> 
 	        SessCookie = mochiweb_cookies:cookie("chat_sess", SessID, [{path, "/"}]),
 	        Req:respond({302, [SessCookie, {"Location", "/chat/"}], <<>>});
+		{error, too_many_conns} -> html_ok(Req, chat_util:get_template("index", [{error, "Your host has too many connections to the chat server."}]));
 		{error, not_available} -> html_ok(Req, chat_util:get_template("index", [{error, "The nickname is not available."}]));
+		{error, {banned, Until}} ->
+		    TimeStr = chat_util:time_interval_str(Until),
+		    html_ok(Req, chat_util:get_template("index", [{error, "You are banned from the chat server. Time remaining: " ++ TimeStr}]));
 	    _ -> html_ok(Req, chat_util:get_template("index", [{error, "The nickname must be alphanumeric and not blank."}]))
 	end;
     
@@ -95,7 +101,7 @@ handle_request(Req, Path) ->
 	
 loop(Req) ->
 	catch case Req:get(version) of
-	    Version when Version >= {1, 1} -> 
+	    Version when Version >= {1, 0} -> 
 	        Path = Req:get(path),
 	        handle_request(Req, Path);
 	    _ -> ok

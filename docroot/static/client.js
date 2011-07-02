@@ -13,7 +13,7 @@ function addText(Text) {
 }
 
 function addSystemMsg(Msg) {
-	addText('<span style="color:black;">*** ' + Msg + '</span>');
+	addText('<span style="color:black;">*** ' + Msg + ' ***</span>');
 }
 
 function scrollToBottom(elm_id)
@@ -163,6 +163,12 @@ function handleServiceMsg(response) {
 			}
 			else if(t == "sent_chat_msg"){
 				addText('<span style="color:blue;">' + data.nick.escapeHTML() + "</span>: " + data.msg.escapeHTML());
+			}
+			else if(t == "admin_logged_in") {
+			    addSystemMsg(data.escapeHTML() + " became an administrator.");
+			}
+			else if(t == "admin_logged_out") {
+			    addSystemMsg(data.escapeHTML() + " gave up admin privileges.");
 			}
 			else if(t == "system_msg") {
 			    addSystemMsg(data);

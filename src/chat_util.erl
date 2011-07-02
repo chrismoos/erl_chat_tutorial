@@ -7,7 +7,24 @@
 
 -export([generate_string/1,generate_hash/0]).
 
+-export([time_interval_str/1]).
+
 -export([unicode_clean/1]).
+
+
+get_interval_str(Secs) when Secs =< 60 -> io_lib:format("~p seconds", [trunc(Secs)]);
+get_interval_str(Secs) when Secs =< 3600 -> io_lib:format("~p minutes, ", [trunc(Secs / 60)]) ++ get_interval_str(Secs rem 60);
+get_interval_str(Secs) when Secs =< 86400 -> io_lib:format("~p hours, ", [trunc(Secs / 3600)]) ++ get_interval_str(Secs rem 3600);
+get_interval_str(Secs) -> io_lib:format("~p days, ", [trunc(Secs / (86400))]) ++ get_interval_str(Secs rem (86400)).
+
+time_interval_str({Mega, Secs, Micro} = Time) when is_integer(Mega) and is_integer(Secs) and is_integer(Micro) ->
+    Seconds = calendar:datetime_to_gregorian_seconds(calendar:now_to_local_time(Time)),
+    NowSeconds = calendar:datetime_to_gregorian_seconds(calendar:now_to_local_time(now())),
+    case Seconds < NowSeconds of
+		false -> get_interval_str(Seconds - NowSeconds);   
+		true -> "None"
+	end;
+time_interval_str(_) -> "Unknown".
 
 strip_unicode([], Cur) -> Cur;
 strip_unicode([H|T], Cur) when H < 128 -> strip_unicode(T, Cur ++ [H]);
